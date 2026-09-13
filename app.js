@@ -9,12 +9,12 @@ import {
 
 // ---- Fill this in from Firebase Console -> Project settings -> General -> Your apps ----
 const firebaseConfig = {
-  apiKey: "REPLACE_ME",
-  authDomain: "REPLACE_ME.firebaseapp.com",
-  projectId: "REPLACE_ME",
-  storageBucket: "REPLACE_ME.appspot.com",
-  messagingSenderId: "REPLACE_ME",
-  appId: "REPLACE_ME",
+  apiKey: "AIzaSyCcESCxa2tCxYfAt1PEi03Yxu5ZBXn0aUc",
+  authDomain: "betlsm.firebaseapp.com",
+  projectId: "betlsm",
+  storageBucket: "betlsm.firebasestorage.app",
+  messagingSenderId: "470996500264",
+  appId: "1:470996500264:web:51d3baa989bda42f591a1d",
 };
 // ------------------------------------------------------------------------------------
 
@@ -24,7 +24,7 @@ const STARTING_BALANCE = 1000;
 // commissioner drawer only appears for the right person. This is just UI
 // polish -- the real enforcement happens in firestore.rules, so it's safe
 // even if someone edits this in devtools.
-const ADMIN_UIDS = ["REPLACE_WITH_YOUR_FIREBASE_AUTH_UID"];
+const ADMIN_UIDS = ["pCcwMWcMoqX7KVRRS8tNa4BcpFp1"];
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
