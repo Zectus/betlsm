@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BetLSM — Liga de Predicciones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brick-ember:#C52707;
+    --inferno:#A80404;
+    --amber-earth:#D88308;
+    --flag-red:#BF2C2C;
+    --dim-grey:#656565;
+
+    --void:#111011;
+    --panel:#1B1715;
+    --panel-2:#221C19;
+    --paper:#F3EEE6;
+    --ink:#150E0A;
+    --line: rgba(101,101,101,0.35);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(197,39,7,0.20), transparent 60%),
+      linear-gradient(180deg, var(--void), #0A0908 85%);
+    color:var(--paper); font-family:'Inter',sans-serif; min-height:100vh; padding-bottom:60px;
+  }
+  .display{font-family:'Barlow Condensed',sans-serif; font-weight:700; letter-spacing:0.01em; text-transform:uppercase;}
+
+  header{
+    padding:18px 24px;
+    background:linear-gradient(120deg, var(--brick-ember), var(--inferno) 75%);
+    box-shadow:0 3px 0 rgba(0,0,0,0.3);
+  }
+  .header-row{max-width:1040px;margin:0 auto;display:flex;justify-content:space-between;
+    align-items:center;flex-wrap:wrap;gap:16px;}
+  .brand{display:flex;align-items:baseline;gap:10px;}
+  h1.display{font-size:30px;line-height:1;margin:0;color:var(--paper);letter-spacing:0.03em;}
+  h1.display span{color:var(--panel);-webkit-text-stroke:1px var(--paper);}
+  .tagline{margin:0;font-size:12px;color:rgba(243,238,230,0.85);}
+  nav.tabs{display:flex;gap:4px;margin-left:18px;}
+  nav.tabs a{
+    font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:rgba(243,238,230,0.85);
+    text-decoration:none;padding:6px 10px;border-radius:999px;
+  }
+  nav.tabs a:hover{background:rgba(0,0,0,0.2);color:var(--paper);}
+  @media (max-width:700px){nav.tabs{display:none;}}
+
+  .you-card{background:rgba(0,0,0,0.28);border:1px solid rgba(243,238,230,0.25);border-radius:999px;
+    padding:6px 8px 6px 16px;min-width:200px;display:flex;align-items:center;gap:12px;justify-content:space-between;}
+  .you-card .label{font-size:9px;color:rgba(243,238,230,0.65);text-transform:uppercase;letter-spacing:0.1em;}
+  .you-card .balance{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:26px;color:var(--paper);line-height:1;}
+  .you-card img{width:26px;height:26px;border-radius:50%;vertical-align:middle;border:2px solid var(--amber-earth);}
+  .signin-btn, .signout-btn{
+    background:var(--amber-earth);color:var(--ink);border:none;border-radius:999px;
+    padding:9px 18px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;
+  }
+  .signin-btn:hover{filter:brightness(1.1);}
+  .signout-btn{background:transparent;border:1px solid rgba(243,238,230,0.4);color:var(--paper);
+    font-size:11px;padding:5px 12px;border-radius:999px;}
+
+  main{max-width:1040px;margin:0 auto;padding:28px 24px;}
+  .layout{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;}
+  @media (max-width:760px){.layout{grid-template-columns:1fr;}}
+  h2.display{font-size:24px;margin:0 0 14px;color:var(--paper);display:flex;align-items:center;gap:8px;}
+  h2.display::before{content:"";width:4px;height:20px;background:var(--amber-earth);display:inline-block;border-radius:2px;}
+
+  .ticket{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    margin-bottom:16px;padding:18px 20px 16px;overflow:hidden;}
+  .ticket::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--dim-grey);}
+  .ticket::before{background:var(--amber-earth);}
+  .ticket.locked::before{background:var(--flag-red);}
+  .ticket.resolved::before{background:var(--brick-ember);}
+  .ticket-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;}
+  .ticket-title{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:22px;line-height:1.1;color:var(--paper);text-transform:none;}
+  .status-tag{font-size:10px;font-weight:700;letter-spacing:0.08em;padding:4px 10px;border-radius:999px;white-space:nowrap;
+    text-transform:uppercase;background:rgba(216,131,8,0.16);color:var(--amber-earth);border:1px solid rgba(216,131,8,0.5);}
+  .status-tag.locked{background:rgba(191,44,44,0.18);color:#FF8A8A;border-color:rgba(191,44,44,0.55);}
+  .status-tag.resolved{background:rgba(197,39,7,0.2);color:#FF9E7A;border-color:rgba(197,39,7,0.5);}
+  .pool-total{font-size:12px;color:rgba(243,238,230,0.55);margin-bottom:12px;}
+  .options{display:flex;flex-direction:column;gap:8px;}
+  .option-row{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:9px 14px;}
+  .option-row.winner{border-color:var(--amber-earth);background:rgba(216,131,8,0.14);}
+  .option-name{font-size:15px;font-weight:600;}
+  .option-meta{font-size:12px;color:rgba(243,238,230,0.5);}
+  .bet-controls{display:flex;gap:6px;align-items:center;}
+  .bet-controls input{width:70px;padding:6px 8px;background:var(--ink);border:1px solid var(--line);
+    color:var(--paper);border-radius:6px;font-family:'Inter',sans-serif;font-size:13px;}
+  button{font-family:'Inter',sans-serif;font-weight:700;font-size:13px;cursor:pointer;
+    border-radius:999px;border:1px solid transparent;padding:7px 16px;}
+  .btn-amber{background:var(--amber-earth);color:var(--ink);}
+  .btn-amber:hover{filter:brightness(1.1);}
+  .btn-ghost{background:transparent;border-color:var(--line);color:var(--paper);}
+  .btn-ghost:hover{border-color:var(--amber-earth);color:var(--amber-earth);}
+  .btn-lockout{background:transparent;border-color:var(--flag-red);color:#FF8A8A;}
+  .btn-lockout:hover{background:var(--flag-red);color:var(--paper);}
+  .your-bet-note{font-size:11px;color:var(--amber-earth);margin-top:8px;font-weight:600;}
+  button:disabled{opacity:0.5;cursor:not-allowed;}
+
+  .standings{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;}
+  .standing-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);}
+  .standing-row:last-child{border-bottom:none;}
+  .rank{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:var(--dim-grey);width:24px;}
+  .standing-row.you{background:linear-gradient(90deg, rgba(216,131,8,0.1), transparent);margin:0 -18px;padding:9px 18px;border-radius:6px;}
+  .standing-row.you .rank, .standing-row.you .sname{color:var(--amber-earth);}
+  .sname{flex:1;font-size:14px;font-weight:600;}
+  .sbal{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:19px;color:var(--paper);}
+
+  .drawer{margin-top:30px;border-top:1px solid var(--line);padding-top:16px;}
+  .drawer-toggle{background:none;border:none;color:var(--dim-grey);font-size:12px;font-weight:600;
+    cursor:pointer;padding:0;font-family:'Inter',sans-serif;}
+  .drawer-toggle:hover{color:var(--amber-earth);}
+  .drawer-body{margin-top:14px;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:16px;display:none;}
+  .drawer-body.open{display:block;}
+  .drawer-body label{display:block;font-size:11px;color:rgba(243,238,230,0.6);margin:10px 0 4px;
+    text-transform:uppercase;letter-spacing:0.06em;font-weight:600;}
+  .drawer-body input[type=text]{width:100%;padding:9px 10px;background:var(--ink);
+    border:1px solid var(--line);color:var(--paper);border-radius:6px;font-family:'Inter',sans-serif;font-size:14px;}
+  .drawer-row{display:flex;gap:10px;margin-top:14px;}
+  .empty-note{font-size:13px;color:rgba(243,238,230,0.45);padding:20px 0;}
+  .signed-out-note{font-size:14px;color:rgba(243,238,230,0.65);padding:60px 0;text-align:center;}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--amber-earth);
+    color:var(--ink);font-weight:700;font-size:13px;padding:10px 20px;border-radius:999px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.5);opacity:0;pointer-events:none;transition:opacity 0.25s ease;z-index:50;}
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-row">
+    <div class="brand">
+      <h1 class="display">BET<span>LSM</span></h1>
+      <nav class="tabs">
+        <a href="#events">Eventos</a>
+        <a href="#standings">Tabla</a>
+      </nav>
+    </div>
+    <div class="you-card" id="you-card">
+      <button class="signin-btn" id="signin-btn">Iniciar sesión con Google</button>
+    </div>
+  </div>
+</header>
+
+<main id="main-content" style="display:none;">
+  <div class="layout">
+    <div>
+      <h2 class="display" id="events">Eventos Abiertos</h2>
+      <div id="events-list"><div class="empty-note">Cargando eventos…</div></div>
+
+      <div class="drawer" id="commish-drawer" style="display:none;">
+        <button class="drawer-toggle" id="drawer-toggle">Panel de comisionado ▾</button>
+        <div class="drawer-body" id="drawer-body">
+          <label>Título del evento</label>
+          <input type="text" id="new-event-title" placeholder="ej. Final de vóley del viernes — ¿quién gana?">
+          <label>Opciones (separadas por coma)</label>
+          <input type="text" id="new-event-options" placeholder="ej. Equipo A, Equipo B">
+          <div class="drawer-row"><button class="btn-amber" id="create-event">Crear evento</button></div>
+          <div id="resolve-section" style="margin-top:22px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="display" id="standings">Tabla de Posiciones</h2>
+      <div class="standings" id="standings-list"><div class="empty-note">Cargando…</div></div>
+    </div>
+  </div>
+</main>
+
+<div id="signed-out-content" class="signed-out-note">Inicia sesión con Google para ver los eventos y la tabla de posiciones.</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
