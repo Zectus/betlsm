@@ -227,6 +227,84 @@ function renderStandings() {
   `).join("");
 }
 
+// ---------- odds recalculator ("apuesta fantasma" con elasticidad ajustable) ----------
+//
+// g_i  = tamaño de la apuesta fantasma para la opción i
+// R_i  = monedas reales apostadas a la opción i hasta ahora
+// V_i  = g_i + R_i           (pool virtual de esa opción)
+// cuota_i = (suma de todos los V) / V_i
+//
+// El slider controla L, el total de "liquidez fantasma" repartida entre las
+// opciones según sus probabilidades implícitas actuales (así que si nadie ha
+// apostado nada todavía, las cuotas no cambian). L se expresa como un
+// múltiplo de lo que ya se apostó: mientras más chico, más se mueve el
+// mercado con poco dinero real (elástico); mientras más grande, hace falta
+// mucho dinero para mover la cuota (rígido).
+const recalcSliderValues = {};
+
+function computeRecalculatedOdds(ev, bets, sliderVal) {
+  const options = ev.options;
+  const R = {};
+  options.forEach((o) => (R[o] = bets.filter((b) => b.option === o).reduce((a, b) => a + b.amount, 0)));
+  const totalR = Object.values(R).reduce((a, b) => a + b, 0);
+
+  const invOdds = options.map((o) => 1 / ev.odds[o]);
+  const sumInv = invOdds.reduce((a, b) => a + b, 0);
+  const w = {};
+  options.forEach((o, i) => (w[o] = invOdds[i] / sumInv));
+
+  const kMin = 0.2, kMax = 20;
+  const t = sliderVal / 100;
+  const k = kMin * Math.pow(kMax / kMin, t);
+  const baseline = totalR > 0 ? totalR : 100; // referencia cuando aún no hay apuestas
+  const L = k * baseline;
+
+  const g = {};
+  options.forEach((o) => (g[o] = L * w[o]));
+  const V = {};
+  options.forEach((o) => (V[o] = g[o] + R[o]));
+  const totalV = Object.values(V).reduce((a, b) => a + b, 0);
+
+  const newOdds = {};
+  options.forEach((o) => (newOdds[o] = Math.round((totalV / V[o]) * 100) / 100));
+
+  return { newOdds, R, totalR };
+}
+
+function renderRecalcPreview(eventId, sliderVal) {
+  const previewEl = document.getElementById(`recalc-preview-${eventId}`);
+  if (!previewEl) return;
+  const ev = eventsCache[eventId];
+  const bets = betsByEvent[eventId] || [];
+  const { newOdds, R, totalR } = computeRecalculatedOdds(ev, bets, sliderVal);
+
+  previewEl.innerHTML = totalR === 0
+    ? '<div class="recalc-empty">Aún no hay apuestas en este evento — esta es solo una vista previa.</div>'
+    : "";
+
+  previewEl.innerHTML += ev.options.map((opt) => `
+    <div class="recalc-row">
+      <span class="recalc-opt">${escapeHtml(opt)}</span>
+      <span class="recalc-bet">${R[opt].toLocaleString()} apostado</span>
+      <span class="recalc-arrow">${ev.odds[opt].toFixed(2)} → <strong>${newOdds[opt].toFixed(2)}</strong></span>
+    </div>
+  `).join("");
+}
+
+window.applyRecalculatedOdds = async function (eventId) {
+  const ev = eventsCache[eventId];
+  const bets = betsByEvent[eventId] || [];
+  const sliderVal = recalcSliderValues[eventId] ?? 50;
+  const { newOdds } = computeRecalculatedOdds(ev, bets, sliderVal);
+  try {
+    await updateDoc(doc(db, "events", eventId), { odds: newOdds });
+    toast("Cuotas actualizadas");
+  } catch (e) {
+    console.error(e);
+    toast("No se pudo actualizar las cuotas");
+  }
+};
+
 function renderResolveSection() {
   const el = document.getElementById("resolve-section");
   if (!currentUser || !ADMIN_UIDS.includes(currentUser.uid)) { el.innerHTML = ""; return; }
@@ -246,13 +324,34 @@ function renderResolveSection() {
           id="odds-edit-${ev.id}-${sanitize(opt)}" style="width:70px;">
         <button class="btn-ghost" style="padding:4px 8px;" onclick="window.updateOdds('${ev.id}', ${JSON.stringify(opt)})">Fijar</button>
       </span>`).join("") : "";
+    const recalcPanel = ev.status === "open" ? `
+      <div class="recalc-panel">
+        <div class="recalc-label">Recalcular cuotas según lo apostado hasta ahora</div>
+        <input type="range" class="elasticity-slider" min="0" max="100"
+          value="${recalcSliderValues[ev.id] ?? 50}" data-event="${ev.id}">
+        <div class="elasticity-scale">
+          <span>Muy elástico</span>
+          <span>Muy rígido</span>
+        </div>
+        <div class="recalc-preview" id="recalc-preview-${ev.id}"></div>
+        <button class="btn-amber" style="margin-top:8px;" onclick="window.applyRecalculatedOdds('${ev.id}')">Aplicar estas cuotas</button>
+      </div>` : "";
     return `<div style="margin-bottom:14px;padding:10px;border:1px solid var(--line);border-radius:8px;">
       <div style="font-size:13px;margin-bottom:6px;">${escapeHtml(ev.title)} <span style="opacity:0.5;">(${ev.status})</span></div>
       ${oddsEditors ? `<div style="margin-bottom:8px;">${oddsEditors}</div>` : ""}
+      ${recalcPanel}
       ${ev.status === "open" ? `<button class="btn-lockout lock-btn" data-event="${ev.id}">Cerrar apuestas</button>` : ""}
       <div style="margin-top:6px;">${optButtons}</div>
     </div>`;
   }).join("");
+
+  el.querySelectorAll(".elasticity-slider").forEach((slider) => {
+    renderRecalcPreview(slider.dataset.event, parseInt(slider.value, 10));
+    slider.addEventListener("input", () => {
+      recalcSliderValues[slider.dataset.event] = parseInt(slider.value, 10);
+      renderRecalcPreview(slider.dataset.event, parseInt(slider.value, 10));
+    });
+  });
 
   el.querySelectorAll(".lock-btn").forEach((btn) =>
     btn.addEventListener("click", () => lockEvent(btn.dataset.event))

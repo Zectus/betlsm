@@ -147,6 +147,26 @@
   .option-row-input .remove-row-btn:hover{border-color:var(--flag-red);color:#FF8A8A;}
   .add-row-btn{margin-top:2px;font-size:12px;padding:6px 12px;}
   .overround-indicator{font-size:11px;color:rgba(243,238,230,0.55);margin-top:10px;min-height:1.4em;}
+
+  /* odds recalculator ("apuesta fantasma" + elasticidad) */
+  .recalc-panel{margin-top:12px;padding:10px;background:rgba(0,0,0,0.2);border:1px solid var(--line);border-radius:8px;}
+  .recalc-label{font-size:11px;color:rgba(243,238,230,0.6);margin-bottom:8px;}
+  .elasticity-slider{width:100%;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;
+    background:var(--line);outline:none;margin:6px 0;}
+  .elasticity-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+    background:var(--amber-earth);cursor:pointer;border:2px solid var(--panel);}
+  .elasticity-slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
+    background:var(--amber-earth);cursor:pointer;border:2px solid var(--panel);}
+  .elasticity-scale{display:flex;justify-content:space-between;font-size:10px;color:rgba(243,238,230,0.45);
+    text-transform:uppercase;letter-spacing:0.04em;}
+  .recalc-preview{margin-top:10px;display:flex;flex-direction:column;gap:4px;}
+  .recalc-empty{font-size:11px;color:rgba(243,238,230,0.45);margin-bottom:4px;}
+  .recalc-row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;
+    padding:5px 8px;background:var(--panel-2);border-radius:6px;}
+  .recalc-opt{font-weight:600;color:var(--paper);flex:1;}
+  .recalc-bet{color:rgba(243,238,230,0.5);font-size:11px;}
+  .recalc-arrow{color:var(--amber-earth);white-space:nowrap;}
+  .recalc-arrow strong{color:var(--paper);}
   .empty-note{font-size:13px;color:rgba(243,238,230,0.45);padding:20px 0;}
   .signed-out-note{font-size:14px;color:rgba(243,238,230,0.65);padding:60px 0;text-align:center;}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--amber-earth);
