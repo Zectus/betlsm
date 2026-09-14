@@ -94,10 +94,13 @@
     color:var(--amber-earth);line-height:1;}
   .odds-box.winner .odds-value{color:var(--paper);}
   .odds-meta{font-size:10px;color:rgba(243,238,230,0.45);margin-top:2px;text-transform:uppercase;letter-spacing:0.04em;}
-  .bet-controls{display:flex;gap:4px;align-items:center;justify-content:center;margin-top:10px;}
-  .bet-controls input{width:60px;padding:6px 6px;background:var(--ink);border:1px solid var(--line);
-    color:var(--paper);border-radius:6px;font-family:'Inter',sans-serif;font-size:13px;text-align:center;}
-  .bet-controls button{padding:6px 10px;}
+  .bet-controls{display:flex;flex-direction:column;gap:6px;margin-top:10px;}
+  .bet-controls input{width:100%;box-sizing:border-box;padding:8px 6px;background:var(--ink);border:1px solid var(--line);
+    color:var(--paper);border-radius:6px;font-family:'Inter',sans-serif;font-size:14px;text-align:center;}
+  .bet-controls input::-webkit-outer-spin-button,
+  .bet-controls input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .bet-controls input[type=number]{-moz-appearance:textfield;}
+  .bet-controls button{width:100%;box-sizing:border-box;padding:8px 6px;}
   .payout-preview{font-size:10px;color:var(--amber-earth);margin-top:6px;min-height:1.2em;}
   button{font-family:'Inter',sans-serif;font-weight:700;font-size:13px;cursor:pointer;
     border-radius:999px;border:1px solid transparent;padding:7px 16px;}

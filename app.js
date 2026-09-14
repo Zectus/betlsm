@@ -186,7 +186,7 @@ function renderEvents() {
         <div class="odds-meta">${betsOnOpt} apuesta${betsOnOpt === 1 ? "" : "s"}${isWinner ? " · GANADOR" : ""}</div>
         ${ev.status === "open" && !myBet ? `
           <div class="bet-controls">
-            <input type="number" min="1" placeholder="monedas" id="${inputId}"
+            <input type="number" min="1" placeholder="Monto" id="${inputId}"
               oninput="window.updatePayoutPreview('${id}', ${JSON.stringify(opt)}, '${previewId}')">
             <button class="btn-amber place-bet-btn" data-event="${id}" data-option="${escapeHtml(opt)}">Apostar</button>
           </div>
