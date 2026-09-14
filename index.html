@@ -173,6 +173,43 @@
     color:var(--ink);font-weight:700;font-size:13px;padding:10px 20px;border-radius:999px;
     box-shadow:0 4px 14px rgba(0,0,0,0.5);opacity:0;pointer-events:none;transition:opacity 0.25s ease;z-index:50;}
   .toast.show{opacity:1;}
+
+  /* ---------- mobile ---------- */
+  @media (max-width:600px){
+    header{padding:14px 16px;}
+    .header-row{gap:10px;}
+    .brand{gap:6px;}
+    h1.display{font-size:24px;}
+    .you-card{min-width:0;flex:1 1 auto;padding:6px 8px 6px 12px;gap:8px;}
+    .you-card .balance{font-size:21px;}
+    .you-card img{width:22px;height:22px;}
+    .signin-btn{padding:8px 14px;font-size:12px;}
+
+    main{padding:16px 14px;}
+    h2.display{font-size:20px;}
+
+    .ticket{padding:14px 14px 12px;margin-bottom:12px;}
+    .ticket-title{font-size:19px;}
+    .status-tag{font-size:9px;padding:3px 8px;}
+
+    .odds-row{grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px;}
+    .odds-box{padding:10px 6px;}
+    .odds-option-name{font-size:11px;min-height:2.2em;}
+    .odds-value{font-size:24px;}
+    .odds-meta{font-size:9px;}
+    .payout-preview{font-size:9px;}
+
+    .standings{padding:14px 14px;}
+    .standing-row.you{margin:0 -14px;padding:9px 14px;}
+
+    .drawer-body{padding:12px;}
+    .option-row-input{flex-wrap:nowrap;}
+    .drawer-body .option-row-input .opt-odds{width:74px;}
+    .option-row-input .remove-row-btn{width:26px;height:26px;font-size:14px;}
+
+    .recalc-row{flex-wrap:wrap;row-gap:2px;}
+    .recalc-bet{flex-basis:100%;}
+  }
 </style>
 </head>
 <body>
